@@ -5,8 +5,7 @@ const ROLES_LIST = require('../config/roles_list');
 const verifyRoles = require('../middleware/verifyRoles');
 
 router.route('/')
-    .get(employeesController.getAllEmployees)
-    .post(verifyRoles(ROLES_LIST.ADMIN, ROLES_LIST.EMPLOYEE), employeesController.createNewEmployee)
+    .get(employeesController.getAllEmployees) 
     .put(verifyRoles(ROLES_LIST.ADMIN, ROLES_LIST.EMPLOYEE), employeesController.updateEmployee)
     .delete(verifyRoles(ROLES_LIST.ADMIN), employeesController.deleteEmployee);
 

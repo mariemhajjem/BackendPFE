@@ -40,7 +40,7 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 
 // routes
 app.use('/api/auth', require('./routes/auth')); 
-
+app.use('/entreprises', require('./routes/entreprises'));
 app.use(verifyJWT);
 app.use('/employees', require('./routes/employees'));
 app.use('/users', require('./routes/users'));

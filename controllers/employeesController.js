@@ -1,145 +1,189 @@
 const Employee = require('../model/Employee');
+const Entreprise = require('../model/Entreprise');
+const EntrepriseClient = require('../model/EntrepriseClient');
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken"); 
+const jwt = require("jsonwebtoken");
 
 const getAllEmployees = async (req, res) => {
-    const employees = await Employee.find();
-    if (!employees) return res.status(204).json({ 'message': 'No employees found.' });
-    res.json(employees);
+  const employees = await Employee.find();
+  if (!employees) return res.status(204).json({ 'message': 'No employees found.' });
+  res.json(employees);
 }
 
 
 const login = async (req, res, next) => {
-    const { email, password } = req.body;
-  
-    let user;
-    try {
-      user = await User.findOne({ email, password });
-    } catch (error) {
-      const err = new Error("Somthing went wrong. could not login!");
-      err.code = 500;
-      return next(err);
-    }
-  
-    if (!user) {
-      const err = new Error(
-        "Identifiants fournis non valides, impossible de se connecter."
-      );
-      err.code = 404;
-      return next(err);
-    }
-  
-    let token;
-    try {
-      token = jwt.sign(
-        { userId: user.id, cin: user.cin, role: user.role },
-        "center_code",
-        { expiresIn: "1d" }
-      );
-    } catch (err) {
-      const error = new Error("logging user failed. Please try again!");
-      error.code = 500;
-      return next(error);
-    }
-  
-    res.json({ token: token, user: user });
-  };
+  const { email, password } = req.body;
+
+  let user;
+  try {
+    user = await Employee.findOne({ email, password });
+  } catch (error) {
+    const err = new Error("Somthing went wrong. could not login!");
+    err.code = 500;
+    return next(err);
+  }
+
+  if (!user) {
+    const err = new Error(
+      "Identifiants fournis non valides, impossible de se connecter."
+    );
+    err.code = 404;
+    return next(err);
+  }
+
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: user.id, cin: user.cin, role: user.role },
+      "center_code",
+      { expiresIn: "1d" }
+    );
+  } catch (err) {
+    const error = new Error("logging user failed. Please try again!");
+    error.code = 500;
+    return next(error);
+  }
+
+  res.json({ token: token, user: user });
+};
 const createNewEmployee = async (req, res) => {
-    const {
-        firstname,
-        lastname,
-        email,
-        phoneNumber,
-        address,
-        password,
-        role,
-        employee_grade } = req?.body;
-    if (!firstname || !lastname || !req?.body?.google_info) {
-        return res.status(400).json({ 'message': 'First and last names are required' });
-    }
-    // check for duplicate usernames in the db
-    const duplicate = await User.findOne({ email }).exec();
-    if (duplicate) return res.sendStatus(409); //Conflict 
-    let result;
-  
-    try {
-        //encrypt the password
-        const hashedPwd = await bcrypt.hash(password, 10);
+  console.log(req?.body)
+  const {
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    address,
+    residence,
+    password,
+    role,
+    gender,
+    matricule_fiscale,
+    company_name,
+    company_phoneNumber,
+    company_email,
+    company_residence } = req?.body;
 
-        //create and store the new user
-        result = await Employee.create({
-            firstname,
-            lastname,
-            email,
-            phoneNumber,
-            address,
-            password : hashedPwd,
-            role,
-            employee_grade,
-        });
-        console.log(result);
+  if (!firstName || !lastName) {
+    return res.status(400).json({ 'message': 'First and last names are required' });
+  }
+  // check for duplicate usernames in the db
+  let duplicate;
+  try {
+    duplicate = await Employee.findOne({ email }).exec();
+  } catch (error) {
+    res.status(500).json({ 'message': error.message });
+  }
+
+  if (duplicate) return res.sendStatus(409); //Conflict 
+  // check for duplicate usernames in the db
+  let exist;
+  try {
+    exist = await Entreprise.findOne({ matricule_fiscale }).exec();
+  } catch (error) {
+    return res.status(500).json({ 'message': error.message });
+  }
+
+
+  if (!exist) {
+    try {
+      //create and store the new Entreprise
+      exist = await Entreprise.create({
+        matricule_fiscale,
+        company_name,
+        company_phoneNumber,
+        company_email,
+        company_residence
+      });
+      console.log(exist);
 
     } catch (err) {
-        res.status(500).json({ 'message': err.message });
+      return res.status(500).json({ 'message': err.message });
     }
+  }
 
-    let token;
-    try {
-        token = jwt.sign(
-          { result },
-          process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "1d" }
-        );
-      } catch (err) {
-        const error = new Error("logging user failed. Please try again!");
-        error.code = 500;
-        return next(error);
-      }
-    res.json({ token, result });
-    
+  let result;
+
+  try {
+    //encrypt the password
+    const hashedPwd = await bcrypt.hash(password, 10);
+    //create and store the new user
+    result = await Employee.create({
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      residence,
+      address,
+      password: hashedPwd,
+      role,
+      gender,
+      enterprise: exist.id
+    });
+
+  } catch (err) {
+    return res.status(500).json({ 'message': err.message });
+  }
+
+  let token;
+  try {
+    token = jwt.sign(
+      { result },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "1d" }
+    );
+  } catch (err) {
+    const error = new Error("logging user failed. Please try again!");
+    error.code = 500;
+    console.log(err);
+    return res.status(500).json({ 'message': err.message });
+    // return next(error);
+  }
+  return res.json({ token, result });
+
 }
 
 const updateEmployee = async (req, res) => {
-    if (!req?.body?.id) {
-        return res.status(400).json({ 'message': 'ID parameter is required.' });
-    }
+  if (!req?.body?.id) {
+    return res.status(400).json({ 'message': 'ID parameter is required.' });
+  }
 
-    const employee = await Employee.findOne({ _id: req.body.id }).exec();
-    if (!employee) {
-        return res.status(204).json({ "message": `No employee matches ID ${req.body.id}.` });
-    }
-    if (req.body?.firstname) employee.firstname = req.body.firstname;
-    if (req.body?.lastname) employee.lastname = req.body.lastname;
-    const result = await employee.save();
-    res.json(result);
+  const employee = await Employee.findOne({ _id: req.body.id }).exec();
+  if (!employee) {
+    return res.status(204).json({ "message": `No employee matches ID ${req.body.id}.` });
+  }
+  if (req.body?.firstName) employee.firstName = req.body.firstName;
+  if (req.body?.lastName) employee.lastName = req.body.lastName;
+  const result = await employee.save();
+  res.json(result);
 }
 
 const deleteEmployee = async (req, res) => {
-    if (!req?.body?.id) return res.status(400).json({ 'message': 'Employee ID required.' });
+  if (!req?.body?.id) return res.status(400).json({ 'message': 'Employee ID required.' });
 
-    const employee = await Employee.findOne({ _id: req.body.id }).exec();
-    if (!employee) {
-        return res.status(204).json({ "message": `No employee matches ID ${req.body.id}.` });
-    }
-    const result = await employee.deleteOne(); //{ _id: req.body.id }
-    res.json(result);
+  const employee = await Employee.findOne({ _id: req.body.id }).exec();
+  if (!employee) {
+    return res.status(204).json({ "message": `No employee matches ID ${req.body.id}.` });
+  }
+  const result = await employee.deleteOne(); //{ _id: req.body.id }
+  res.json(result);
 }
 
 const getEmployee = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'Employee ID required.' });
+  if (!req?.params?.id) return res.status(400).json({ 'message': 'Employee ID required.' });
 
-    const employee = await Employee.findOne({ _id: req.params.id }).exec();
-    if (!employee) {
-        return res.status(204).json({ "message": `No employee matches ID ${req.params.id}.` });
-    }
-    res.json(employee);
+  const employee = await Employee.findOne({ _id: req.params.id }).exec();
+  if (!employee) {
+    return res.status(204).json({ "message": `No employee matches ID ${req.params.id}.` });
+  }
+  res.json(employee);
 }
 
 module.exports = {
-    getAllEmployees,
-    createNewEmployee,
-    updateEmployee,
-    deleteEmployee,
-    getEmployee,
-    login
+  getAllEmployees,
+  createNewEmployee,
+  updateEmployee,
+  deleteEmployee,
+  getEmployee,
+  login
 }

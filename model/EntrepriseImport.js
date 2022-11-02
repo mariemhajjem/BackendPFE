@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-const { BaseCompanySchema } = require("./Entreprise");
+const Entreprise = require("./Entreprise");
 const Schema = mongoose.Schema;
 
-const Entreprise = new Schema({
+const EntrepriseImpt = new Schema({
   
   stock: [
     {
@@ -12,6 +12,6 @@ const Entreprise = new Schema({
   ],  
 });
 
-const EntrepriseImport = BaseCompanySchema.discriminator("EntrepriseImport", Entreprise);
+const EntrepriseImport = Entreprise.discriminator("EntrepriseImport", EntrepriseImpt);
 
 module.exports = { EntrepriseImport };

@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-const { BaseCompanySchema } = require("./Entreprise");
+const Entreprise  = require("./Entreprise");
 const Schema = mongoose.Schema;
 
-const Entreprise = new Schema({
+const EntrepriseClt = new Schema({
   
   demandes: [
     {
@@ -18,6 +18,6 @@ const Entreprise = new Schema({
   ]
 });
 
-const EntrepriseClient = BaseCompanySchema.discriminator("EntrepriseClient", Entreprise);
+const EntrepriseClient = Entreprise.discriminator("EntrepriseClient", EntrepriseClt);
 
 module.exports = { EntrepriseClient };

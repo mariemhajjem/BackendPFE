@@ -2,12 +2,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const baseOption = {
-  discriminatorKey: "Entreprise",
-  collection: "Entreprise",
-  timestamps: true,
+  discriminatorKey: "Entreprise", 
 };
 
-const BaseCompanySchema = new Schema(
+const EntrepriseSchema = new Schema(
   {
     matricule_fiscale: {
       type: String,
@@ -16,6 +14,10 @@ const BaseCompanySchema = new Schema(
     },
     company_name: {
       type: String,
+      required: true
+    },
+    company_residence: {
+      type: Array,
       required: true
     },
     company_address: {
@@ -27,25 +29,19 @@ const BaseCompanySchema = new Schema(
       unique : true
     }, 
     company_email: {
-      type: String,
-      required: true,
+      type: String, 
       
-    }, 
-    token : {
-      type: String,
-       required: true, 
-       max: 8
-    },
+    },  
     isVerified: {
       type: Boolean,
       required :true,
-      default : true
+      default : false
     },
   },
   baseOption
 );
 
-module.exports.BaseCompanySchema = mongoose.model(
-  "BaseCompanySchema",
-  BaseCompanySchema
+module.exports = mongoose.model(
+  "Entreprise",
+  EntrepriseSchema
 );

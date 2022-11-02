@@ -15,7 +15,8 @@ const createNewEntreprise = async (req, res) => {
         company_name,
         company_address,
         company_phoneNumber,
-        company_email
+        company_email,
+        company_residence
     } = req?.body;
     if (!matricule_fiscal || !company_name) {
         return res.status(400).json({ 'message': 'company infos are required' });
@@ -32,7 +33,8 @@ const createNewEntreprise = async (req, res) => {
             company_name,
             company_address,
             company_phoneNumber,
-            company_email
+            company_email,
+            company_residence
         });
         console.log(result);
 

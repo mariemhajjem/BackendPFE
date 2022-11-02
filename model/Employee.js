@@ -22,8 +22,16 @@ const employeeSchema = new Schema({
 	address: {
 		type: String
 	},
+	residence: {
+		type: Array
+	},
 	password: {
 		type: String
+	},
+	gender: {
+		type: String,
+		enum: ['male', 'female','other'],
+		default: 'none'
 	},
 	creation_date: {
 		type: Date,
@@ -46,7 +54,7 @@ const employeeSchema = new Schema({
     ],
 	role: {
 		type: String,
-		enum: ['ADMIN', 'CLIENT', "IMPORTATEUR", "EMPLOYEE"],
+		enum: ['ADMIN', 'CLIENT', "FOURNISSEUR", "EMPLOYEE"],
 		default: 'CLIENT'
 	},
     employee_grade : {
