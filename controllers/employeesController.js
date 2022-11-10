@@ -5,27 +5,37 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const getAllEmployees = async (req, res) => {
-  const employees = await Employee.find();
+  const employees = await Employee.find().populate("enterprise");
   if (!employees) return res.status(204).json({ 'message': 'No employees found.' });
   res.json(employees);
 }
 
 
 const login = async (req, res, next) => {
-  const { email, password } = req.body;
-
+  const { email, password } = req.body; 
+ 
   let user;
   try {
-    user = await Employee.findOne({ email, password });
+    console.log(req.body)
+    user = await Employee.findOne({ email }).populate("enterprise"); 
   } catch (error) {
     const err = new Error("Somthing went wrong. could not login!");
     err.code = 500;
     return next(err);
   }
+  let passwordIsValid = bcrypt.compareSync(password, user.password);
+
+  if (!passwordIsValid) {
+    const err = new Error(
+      "Mot de passe non valide, impossible de se connecter."
+    );
+    err.code = 401;
+    return next(err);
+  }
 
   if (!user) {
     const err = new Error(
-      "Identifiants fournis non valides, impossible de se connecter."
+      "Email fournis non valides, impossible de se connecter."
     );
     err.code = 404;
     return next(err);
@@ -34,8 +44,8 @@ const login = async (req, res, next) => {
   let token;
   try {
     token = jwt.sign(
-      { userId: user.id, cin: user.cin, role: user.role },
-      "center_code",
+      {user},
+      "secret",
       { expiresIn: "1d" }
     );
   } catch (err) {
@@ -44,7 +54,7 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  res.json({ token: token, user: user });
+  return res.json(token);
 };
 const createNewEmployee = async (req, res) => {
   console.log(req?.body)
@@ -72,7 +82,7 @@ const createNewEmployee = async (req, res) => {
   try {
     duplicate = await Employee.findOne({ email }).exec();
   } catch (error) {
-    res.status(500).json({ 'message': error.message });
+    return res.status(500).json({ 'message': error.message });
   }
 
   if (duplicate) return res.sendStatus(409); //Conflict 
@@ -102,13 +112,13 @@ const createNewEmployee = async (req, res) => {
     }
   }
 
-  let result;
+  let user;
 
   try {
     //encrypt the password
     const hashedPwd = await bcrypt.hash(password, 10);
     //create and store the new user
-    result = await Employee.create({
+    user = await Employee.create({
       firstName,
       lastName,
       email,
@@ -128,7 +138,7 @@ const createNewEmployee = async (req, res) => {
   let token;
   try {
     token = jwt.sign(
-      { result },
+      { user,exist },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "1d" }
     );
@@ -139,7 +149,7 @@ const createNewEmployee = async (req, res) => {
     return res.status(500).json({ 'message': err.message });
     // return next(error);
   }
-  return res.json({ token, result });
+  return res.json(token);
 
 }
 
@@ -172,7 +182,7 @@ const deleteEmployee = async (req, res) => {
 const getEmployee = async (req, res) => {
   if (!req?.params?.id) return res.status(400).json({ 'message': 'Employee ID required.' });
 
-  const employee = await Employee.findOne({ _id: req.params.id }).exec();
+  const employee = await Employee.findOne({ _id: req.params.id }).populate("enterprise").exec();
   if (!employee) {
     return res.status(204).json({ "message": `No employee matches ID ${req.params.id}.` });
   }

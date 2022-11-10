@@ -7,9 +7,10 @@ const verifyRoles = require('../middleware/verifyRoles');
 router.route('/')
     .get(entrepriseController.getAllEntreprises) 
     .put(verifyRoles(ROLES_LIST.ADMIN, ROLES_LIST.EMPLOYEE), entrepriseController.updateEntreprise)
-    .delete(verifyRoles(ROLES_LIST.ADMIN), entrepriseController.deleteEntreprise);
+    
 
 router.route('/:id')
+    .delete(verifyRoles(ROLES_LIST.ADMIN), entrepriseController.deleteEntreprise)
     .get(entrepriseController.getEntreprise);
 
 module.exports = router;

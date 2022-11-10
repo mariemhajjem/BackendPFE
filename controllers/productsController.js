@@ -1,25 +1,28 @@
+const Resize = require('../middleware/Resize');
 const Produit = require('../model/Produit');
 
 const getAllProduits = async (req, res) => {
     const produits = await Produit.find();
+    console.log(produits)
     if (!produits) return res.status(204).json({ 'message': 'No produits found.' });
     res.json(produits);
 }
-
 
 const createNewProduit = async (req, res) => {
     const {
         product_label,
         product_description,
-        product_price,
-        product_picture,
-        product_date
+        product_price,  
     } = req?.body;
-    if (!matricule_fiscal || !company_name) {
-        return res.status(400).json({ 'message': 'company infos are required' });
+    const imagePath = path.join(__dirname, '/public/images');
+    const fileUpload = new Resize(imagePath);
+    const filename = await fileUpload.save(req.file.buffer);
+    if (!req.file) {
+      res.status(401).json({error: 'Please provide an image'});
     }
+   console.log("createNewProduit: ", req.body)
     // check for duplicate in the db
-    const duplicate = await Produit.findOne({ matricule_fiscal }).exec();
+    const duplicate = await Produit.findOne({ product_label }).exec();
     if (duplicate) return res.sendStatus(409); //Conflict 
     let result;
 
@@ -29,8 +32,7 @@ const createNewProduit = async (req, res) => {
             product_label,
             product_description,
             product_price,
-            product_picture,
-            product_date
+            product_picture:filename,
         });
         console.log(result);
 
@@ -43,16 +45,29 @@ const createNewProduit = async (req, res) => {
 }
 
 const updateProduit = async (req, res) => {
+    const {
+        product_label,
+        product_description,
+        product_price,  
+    } = req?.body;
     if (!req?.body?.id) {
         return res.status(400).json({ 'message': 'ID parameter is required.' });
     }
-
-    const produit = await Produit.findOne({ _id: req.body.id }).exec();
+    let produit;
+    try{
+        produit = await Produit.findOne({ _id: req.body.id }).exec();
+    } catch(error){
+        res.status(500).json({ 'message': error.message });
+    }
+    
     if (!produit) {
         return res.status(204).json({ "message": `No produit matches ID ${req.body.id}.` });
     }
     //TODO : add update 
-
+    // produit = {...produit,...req?.body} 
+    produit.product_label = product_label;
+    produit.product_description = product_description;
+    produit.product_price = product_price;
     const result = await produit.save();
     res.json(result);
 }

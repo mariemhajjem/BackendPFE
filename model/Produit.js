@@ -20,7 +20,7 @@ const productSchema = new Schema({
 	product_date: {
 		type: Date,
 		required: true,
-		default: Date.now
+		default: Date.now()
 	},
     product_availability: {
 		type: String,
@@ -44,7 +44,7 @@ const productSchema = new Schema({
 	enterprise: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Enterprise",
-		required: true
+		// required: true
 	},
 	subscribed_enterprises: [
 		{

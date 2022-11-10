@@ -40,10 +40,11 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 
 // routes
 app.use('/api/auth', require('./routes/auth')); 
-app.use('/entreprises', require('./routes/entreprises'));
+app.use('/api/entreprises', require('./routes/entreprises'));
+app.use('/api/produits', require('./routes/produits'));
 app.use(verifyJWT);
-app.use('/employees', require('./routes/employees'));
-app.use('/users', require('./routes/users'));
+app.use('/api/employees', require('./routes/employees'));
+app.use('/api/users', require('./routes/users'));
 
 app.all('*', (req, res) => {
     res.status(404);
