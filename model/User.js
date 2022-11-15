@@ -2,23 +2,79 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-    username: {
+    firstName: {
+		type: String,
+		required: true
+	},
+	lastName: {
+		type: String,
+		required: true
+	},
+	email: {
+		type: String,
+		required: true,
+		unique: true
+	},
+	phoneNumber: {
+		type: String,
+		unique: true
+	},
+	address: {
+		type: String
+	},
+	residence: {
+		type: Array
+	},
+	password: {
+		type: String
+	},
+	gender: {
+		type: String,
+		enum: ['male', 'female','other'],
+		default: 'none'
+	},
+	creation_date: {
+		type: Date,
+		required: true,
+		default: Date.now
+	},
+	lastSeen: [
+        {
+            date : {
+                type: Date, 
+                default: Date.now
+            },
+            status: {
+                type: String,
+                required: true,
+                enum: ['LoggedIN', 'LoggedOut'],
+                default: 'LoggedIN'
+            },
+	    }
+    ],
+	role: {
+		type: String,
+		enum: ['ADMIN', 'CLIENT', "FOURNISSEUR", "EMPLOYEE"],
+		default: 'CLIENT'
+	},
+    user_grade : {
         type: String,
-        required: true
+		enum: ['OWNER', 'RH', "SALE", "OTHER"],
+		default: 'OTHER'
     },
-    roles: {
-        User: {
-            type: Number,
-            default: 2001
-        },
-        Editor: Number,
-        Admin: Number
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    refreshToken: [String]
+    isBlocked: {
+		type: Boolean, 
+		default: false
+	},
+	enterpriseClt: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "EntrepriseClient"
+	}, 
+	enterpriseImport: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "EntrepriseImport"
+	}, 
+	// google_info : {}
 });
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const baseOption = {
-  discriminatorKey: "Entreprise", 
-};
-
 const EntrepriseSchema = new Schema(
   {
     matricule_fiscale: {
@@ -37,8 +33,7 @@ const EntrepriseSchema = new Schema(
       required :true,
       default : false
     },
-  },
-  baseOption
+  }
 );
 
 module.exports = mongoose.model(

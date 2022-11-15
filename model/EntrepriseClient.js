@@ -1,9 +1,37 @@
-const mongoose = require("mongoose");
-const Entreprise  = require("./Entreprise");
+const mongoose = require("mongoose"); 
 const Schema = mongoose.Schema;
 
 const EntrepriseClt = new Schema({
-  
+  matricule_fiscale: {
+    type: String,
+    required: true,
+    unique : true
+  },
+  company_name: {
+    type: String,
+    required: true
+  },
+  company_residence: {
+    type: Array,
+    required: true
+  },
+  company_address: {
+    type: String
+  },
+  company_phoneNumber: {
+    type: String,
+    required: true,
+    unique : true
+  }, 
+  company_email: {
+    type: String, 
+    
+  },  
+  isVerified: {
+    type: Boolean,
+    required :true,
+    default : false
+  },
   demandes: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -17,7 +45,8 @@ const EntrepriseClt = new Schema({
     }
   ]
 });
-
-const EntrepriseClient = Entreprise.discriminator("EntrepriseClient", EntrepriseClt);
-
-module.exports = { EntrepriseClient };
+ 
+module.exports = mongoose.model(
+  "EntrepriseClient",
+  EntrepriseClt
+); 

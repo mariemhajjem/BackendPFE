@@ -25,10 +25,10 @@ const createNewCategorie = async (req, res) => {
         console.log(result);
 
     } catch (err) {
-        res.status(500).json({ 'message': err.message });
+        return res.status(500).json({ 'message': err.message });
     }
 
-    res.json(result);
+    return res.json(result);
 
 }
 
@@ -44,7 +44,7 @@ const updateCategorie = async (req, res) => {
      
     if (req.body?.category_name) categorie.category_name = category_name;
     const result = await categorie.save();
-    res.json(result);
+    return res.json(result);
 }
 
 const deleteCategorie = async (req, res) => {
@@ -55,7 +55,7 @@ const deleteCategorie = async (req, res) => {
         return res.status(204).json({ "message": `No categorie matches ID ${req.body.id}.` });
     }
     const result = await categorie.deleteOne(); //{ _id: req.body.id }
-    res.json(result);
+    return res.json(result);
 }
 
 const getCategorie = async (req, res) => {
@@ -65,7 +65,7 @@ const getCategorie = async (req, res) => {
     if (!categorie) {
         return res.status(204).json({ "message": `No categorie matches ID ${req.params.id}.` });
     }
-    res.json(categorie);
+    return res.json(categorie);
 }
 
 module.exports = {

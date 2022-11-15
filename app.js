@@ -39,11 +39,11 @@ app.use(cookieParser());
 app.use('/', express.static(path.join(__dirname, '/public')));
 
 // routes
-app.use('/api/auth', require('./routes/auth')); 
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/entreprises', require('./routes/entreprises'));
 app.use('/api/produits', require('./routes/produits'));
+app.use('/api/categories', require('./routes/categories'));
 app.use(verifyJWT);
-app.use('/api/employees', require('./routes/employees'));
 app.use('/api/users', require('./routes/users'));
 
 app.all('*', (req, res) => {
@@ -58,6 +58,17 @@ app.all('*', (req, res) => {
 });
 
 app.use(errorHandler);
+app.use((req, res, next) => {
+    const error = new Error("could not found this route.");
+    error.code = 404;
+    throw error;
+});
+
+app.use((error, req, res, next) => {
+    if (req.headerSent) return next(error);
+    res.status(error?.code || 500);
+    res.json({ message: error?.message || "An unknow error occured!", code: error?.code});
+});
 
 mongoose.connection.once('open', () => {
     console.log('Connected to MongoDB');
