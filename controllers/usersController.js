@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const getAllUsers = async (req, res) => {
-  const users = await User.find().populate("enterprise");
+  const users = await User.find()//.populate("enterprise"); 
   if (!users) return res.status(204).json({ 'message': 'No users found.' });
   res.json(users);
 }
@@ -17,7 +17,7 @@ const login = async (req, res, next) => {
   let user;
   try {
     console.log(req.body)
-    user = await User.findOne({ email }).populate("enterprise");
+    user = await User.findOne({ email })//.populate("enterprise");
   } catch (error) {
     const err = new Error("Somthing went wrong. could not login!");
     err.code = 500;
@@ -185,13 +185,27 @@ const getUser = async (req, res) => {
     return res.status(204).json({ "message": `No user matches ID ${req.params.id}.` });
   }
   res.json(user);
-}
+} 
 
+const blockUser = async (req, res) => {
+  if (!req?.body?.id) {
+    return res.status(400).json({ 'message': 'ID parameter is required.' });
+  }
+
+  const user = await User.findOne({ _id: req.body.id }).exec();
+  if (!user) {
+    return res.status(204).json({ "message": `No user matches ID ${req.body.id}.` });
+  }
+  user.isBlocked = true;
+  const result = await user.save();
+  res.json(result);
+}
 module.exports = {
   getAllUsers,
   createNewUser,
   updateUser,
   deleteUser,
   getUser,
-  login
+  login,
+  blockUser
 }

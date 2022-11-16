@@ -18,12 +18,12 @@ const commandeSchema = new Schema({
 	},  
 	enterprise: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: "Enterprise",
+		ref: "EntrepriseClient",
 		required: true
 	},
     product_owner: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: "Enterprise",
+		ref: "EntrepriseImport",
 		required: true
 	},
 
