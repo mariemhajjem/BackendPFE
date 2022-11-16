@@ -7,6 +7,7 @@ const User = require("../model/User");
 const creds = require("../config/contact");
 const Entreprise = require('../model/Entreprise');
 const EntrepriseClient = require('../model/EntrepriseClient');
+const EntrepriseImport = require('../model/EntrepriseImport');
 
 let transport = {
   service: "gmail",
@@ -127,7 +128,7 @@ const createNewUser = async (req, res) => {
     company_email,
     company_residence } = req?.body;
 
-  if (!firstName || !lastName) {
+  if (!firstName || !lastName) { //TODO : add rest of required body params
     return res.status(400).json({ 'message': 'First and last names are required' });
   }
   // check for duplicate usernames in the db
@@ -138,54 +139,98 @@ const createNewUser = async (req, res) => {
     return res.status(500).json({ 'message': error.message });
   }
 
-  if (duplicate) return res.sendStatus(409); //Conflict 
-  // check for duplicate usernames in the db
+  if (duplicate) return res.sendStatus(409); //Conflict  
+
   let exist;
-  try {
-    exist = await Entreprise.findOne({ matricule_fiscale }).exec();
-  } catch (error) {
-    return res.status(500).json({ 'message': error.message });
-  }
-
-
-  if (!exist) {
-    try {
-      //create and store the new Entreprise
-      exist = await Entreprise.create({
-        matricule_fiscale,
-        company_name,
-        company_phoneNumber,
-        company_email,
-        company_residence
-      });
-      console.log(exist);
-
-    } catch (err) {
-      return res.status(500).json({ 'message': err.message });
-    }
-  }
-
   let user;
+  //encrypt the password
+  const hashedPwd = await bcrypt.hash(password, 10);
+  switch (role) {
+    case "FOURNISSEUR":
 
-  try {
-    //encrypt the password
-    const hashedPwd = await bcrypt.hash(password, 10);
-    //create and store the new user
-    user = await User.create({
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      residence,
-      address,
-      password: hashedPwd,
-      role,
-      gender,
-      enterprise: exist._id
-    });
+      try {
+        exist = await EntrepriseImport.findOne({ matricule_fiscale }).exec();
+      } catch (error) {
+        return res.status(500).json({ 'message': error.message });
+      }
 
-  } catch (err) {
-    return res.status(500).json({ 'message': err.message });
+      if (!exist) {
+        try {
+          //create and store the new Entreprise
+          exist = await EntrepriseImport.create({
+            matricule_fiscale,
+            company_name,
+            company_phoneNumber,
+            company_email,
+            company_residence
+          });
+          console.log(exist);
+
+        } catch (err) {
+          return res.status(500).json({ 'message': err.message });
+        }
+      }
+      try {
+        user = await User.create({
+          firstName,
+          lastName,
+          email,
+          phoneNumber,
+          residence,
+          address,
+          password: hashedPwd,
+          role,
+          gender,
+          enterpriseImport: exist._id
+        });
+
+      } catch (err) {
+        return res.status(500).json({ 'message': err.message });
+      }
+      break;
+    case "CLIENT":
+      try {
+        exist = await EntrepriseClient.findOne({ matricule_fiscale }).exec();
+      } catch (error) {
+        return res.status(500).json({ 'message': error.message });
+      }
+
+      if (!exist) {
+        try {
+          //create and store the new Entreprise
+          exist = await EntrepriseClient.create({
+            matricule_fiscale,
+            company_name,
+            company_phoneNumber,
+            company_email,
+            company_residence
+          });
+          console.log(exist);
+
+        } catch (err) {
+          return res.status(500).json({ 'message': err.message });
+        }
+      };
+      try {
+
+        user = await User.create({
+          firstName,
+          lastName,
+          email,
+          phoneNumber,
+          residence,
+          address,
+          password: hashedPwd,
+          role,
+          gender,
+          enterpriseClt: exist._id
+        });
+
+      } catch (err) {
+        return res.status(500).json({ 'message': err.message });
+      }
+      
+      break;
   }
 
   let token;
