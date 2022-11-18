@@ -8,6 +8,7 @@ const upload = require('../middleware/upload');
 const upload = multer({ dest: 'uploads/' }) */
 
 router.route('/').get(productsController.getAllProduits) ;
+router.route('/byuser').get(productsController.getAllProduitsByUser) ;
 router.route('/update').put(productsController.updateProduit);
 router.post('/add',upload.single('product_picture'), productsController.createNewProduit)
 

@@ -68,11 +68,13 @@ const userSchema = new Schema({
 	},
 	enterpriseClt: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: "EntrepriseClient"
+		ref: "EntrepriseClient",
+		default: null
 	}, 
 	enterpriseImport: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: "EntrepriseImport"
+		ref: "EntrepriseImport",
+		default: null
 	}, 
 	// google_info : {}
 });

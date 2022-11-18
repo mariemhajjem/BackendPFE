@@ -3,9 +3,18 @@ const Produit = require('../model/Produit');
 const Categorie = require('../model/Categorie');
 
 const getAllProduits = async (req, res) => {
-    const produits = await Produit.find().populate("category_id");
-    if (!produits) return res.status(204).json({ 'message': 'No produits found.' });
-    res.json(produits);
+    const produits = await Produit.find({ isShown: true}).populate("category_id");
+    if (!produits) return res.status(204).json(produits);
+    return res.json(produits);
+}
+
+const getAllProduitsByUser = async (req, res) => { 
+    console.log(req?.body)
+    if (!req?.body?.enterprise) return res.status(400).json({ "message": `No produit matches your entreprise.` });
+    const produits = await Produit.find({enterprise : req?.body?.enterprise}).populate("category_id");
+    
+    if (!produits) return res.status(204).json(produits);
+    return res.json(produits);
 }
 
 const createNewProduit = async (req, res) => {
@@ -14,12 +23,14 @@ const createNewProduit = async (req, res) => {
         product_description,
         product_price,
         product_category,
-        product_quantity
+        product_quantity,
+        entreprise
     } = req?.body;
+    console.log(req?.body)
     /* const imagePath = path.join(__dirname, '/public/images');
     const fileUpload = new Resize(imagePath);
     const filename = await fileUpload.save(req.file.buffer); */
-     const imageUrl = "public/assets/uploads/"+req.file?.filename; // TODO :change file path in upload.js 
+     const imageUrl = "uploads/"+req.file?.filename; // TODO :change file path in upload.js 
      /* if (!req.file) {
       const err = new Error(
             "Please provide an image"
@@ -54,10 +65,12 @@ const createNewProduit = async (req, res) => {
             product_label,
             product_description,
             product_price,
-            category_id: duplicate_cat.id,
+            category_id: duplicate_cat,
             product_picture:imageUrl,
-            product_quantity
+            product_quantity,
+            entreprise
         }); 
+        console.log(result)
 
     } catch (err) {
         return res.status(500).json({ 'message': err.message });
@@ -109,9 +122,7 @@ const updateProduit = async (req, res) => {
     produit.product_description = product_description;
     produit.product_price = product_price;
     produit.product_quantity =product_quantity;
-    produit.category_id = duplicate_cat.id;
-    let  result = await produit.save();
-    result = await result.populate('category_id')
+    produit.category_id = duplicate_cat; 
     return res.json(result);
 }
 
@@ -138,6 +149,7 @@ const getProduit = async (req, res) => {
 
 module.exports = {
     getAllProduits,
+    getAllProduitsByUser,
     createNewProduit,
     updateProduit,
     deleteProduit,
