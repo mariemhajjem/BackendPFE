@@ -40,7 +40,5 @@ const EntrepriseImpt = new Schema({
   ],  
 });
  
-module.exports = mongoose.model(
-  "EntrepriseImport",
-  EntrepriseImpt
-); 
+module.exports = mongoose.model( "EntrepriseImport", EntrepriseImpt);
+ 

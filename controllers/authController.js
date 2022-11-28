@@ -4,8 +4,7 @@ const nodemailer = require("nodemailer");
 const hbs = require('nodemailer-express-handlebars')
 const path = require('path');
 const User = require("../model/User");
-const creds = require("../config/contact");
-const Entreprise = require('../model/Entreprise');
+const creds = require("../config/contact"); 
 const EntrepriseClient = require('../model/EntrepriseClient');
 const EntrepriseImport = require('../model/EntrepriseImport');
 

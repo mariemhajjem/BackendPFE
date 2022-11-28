@@ -18,17 +18,9 @@ const demandeSchema = new Schema({
 	},  
 	enterprise: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: "Enterprise",
+		ref: "EntrepriseClient",
 		required: true
-	},
-    product_owner: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: "Enterprise",
-		required: true
-	},
-
-
-
+	}
 });
 
 module.exports = mongoose.model('Demande', demandeSchema);

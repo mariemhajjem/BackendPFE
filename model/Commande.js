@@ -9,7 +9,7 @@ const commandeSchema = new Schema({
 				ref: "Produit",
 				required: true
 			},
-			commande_qty: {
+			quantity: {
 				type: Number,
 				required: true
 			},
@@ -26,19 +26,12 @@ const commandeSchema = new Schema({
 		enum: ['En cours', "Confirmé", "Annulée"],
 		default: 'En cours'
 	},
-	enterprise: {
+	enterpriseClt: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "EntrepriseClient",
-		required: true
-	},
-	product_owner: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: "EntrepriseImport",
-		required: true
-	},
-
-
-
+		required: true,
+		default: null
+	}
 });
 
 module.exports = mongoose.model('Commande', commandeSchema);

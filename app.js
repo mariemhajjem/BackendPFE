@@ -39,10 +39,10 @@ app.use(cookieParser());
 app.use('/', express.static(path.join(__dirname, '/public')));
 
 // routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/entreprises', require('./routes/entreprises'));
+app.use('/api/auth', require('./routes/auth')); 
 app.use('/api/produits', require('./routes/produits'));
 app.use('/api/categories', require('./routes/categories'));
+app.use('/api/commandes', require('./routes/commandes'));
 // app.use(verifyJWT);
 app.use('/api/users', require('./routes/users'));
 

@@ -46,7 +46,4 @@ const EntrepriseClt = new Schema({
   ]
 });
  
-module.exports = mongoose.model(
-  "EntrepriseClient",
-  EntrepriseClt
-); 
+module.exports = mongoose.model("EntrepriseClient", EntrepriseClt);

@@ -1,18 +1,27 @@
 const Resize = require('../middleware/Resize');
 const Produit = require('../model/Produit');
 const Categorie = require('../model/Categorie');
+const EntrepriseImport = require('../model/EntrepriseImport')
 
+const getProduits = async (req, res) => {
+    const produits = await Produit.find().populate("category_id");
+    if (!produits) return res.status(204).json(produits);
+    return res.json(produits);
+}
 const getAllProduits = async (req, res) => {
-    const produits = await Produit.find({ isShown: true}).populate("category_id");
+    const produits = await Produit.find({ isShown: true }).populate("category_id");
     if (!produits) return res.status(204).json(produits);
     return res.json(produits);
 }
 
 const getAllProduitsByUser = async (req, res) => { 
-    console.log(req?.body)
-    if (!req?.body?.enterprise) return res.status(400).json({ "message": `No produit matches your entreprise.` });
-    const produits = await Produit.find({enterprise : req?.body?.enterprise}).populate("category_id");
-    
+    if (!req.body?.id) return res.status(400).json({ "message": `No produit matches your id.` });
+    let produits
+    try {
+        produits = await Produit.find({ enterpriseImport: req.body.id }).populate("category_id");
+    } catch (error) {
+        return res.status(500).json({ 'message': error.message });
+    }
     if (!produits) return res.status(204).json(produits);
     return res.json(produits);
 }
@@ -24,33 +33,42 @@ const createNewProduit = async (req, res) => {
         product_price,
         product_category,
         product_quantity,
-        entreprise
+        id
     } = req?.body;
     console.log(req?.body)
     /* const imagePath = path.join(__dirname, '/public/images');
     const fileUpload = new Resize(imagePath);
     const filename = await fileUpload.save(req.file.buffer); */
-     const imageUrl = "uploads/"+req.file?.filename; // TODO :change file path in upload.js 
-     /* if (!req.file) {
-      const err = new Error(
-            "Please provide an image"
-          );
-          err.code = 400;
-          return next(err); 
-      return res.status(400).json({error: 'Please provide an image'});
-    } */
+    const imageUrl = "uploads/" + req.file?.filename; // TODO :change file path in upload.js 
+    /* if (!req.file) {
+     const err = new Error(
+           "Please provide an image"
+         );
+         err.code = 400;
+         return next(err); 
+     return res.status(400).json({error: 'Please provide an image'});
+   } */
     // check for duplicate in the db
     const duplicate = await Produit.findOne({ product_label }).exec();
     if (duplicate) return res.sendStatus(409); //Conflict 
-    let result; 
+    let entrepriseImport
+    try {
+        entrepriseImport = await EntrepriseImport.find({ _id: id });
+        console.log(entrepriseImport)
+
+    } catch (err) {
+        console.log(err.message)
+        return res.status(500).json({ 'message': err.message });
+    }
+    let result;
     let duplicate_cat;
-    if (req?.body?.product_category) { 
-        duplicate_cat = await Categorie.findOne({ category_name:product_category }).exec();
+    if (req?.body?.product_category) {
+        duplicate_cat = await Categorie.findOne({ category_name: product_category }).exec();
         if (!duplicate_cat) {
-            try { 
+            try {
                 duplicate_cat = await Categorie.create({
-                    category_name:product_category
-                }); 
+                    category_name: product_category
+                });
 
             } catch (err) {
                 console.log("error")
@@ -66,10 +84,10 @@ const createNewProduit = async (req, res) => {
             product_description,
             product_price,
             category_id: duplicate_cat,
-            product_picture:imageUrl,
+            product_picture: imageUrl,
             product_quantity,
-            entreprise
-        }); 
+            enterpriseImport: entrepriseImport[0]?._id
+        });
         console.log(result)
 
     } catch (err) {
@@ -87,7 +105,7 @@ const updateProduit = async (req, res) => {
         product_price,
         product_quantity,
         product_category
-    } = req?.body; 
+    } = req?.body;
     if (!req?.body?.id) {
         return res.status(400).json({ 'message': 'ID parameter is required.' });
     }
@@ -102,13 +120,13 @@ const updateProduit = async (req, res) => {
         return res.status(204).json({ "message": `No produit matches ID ${req.body.id}.` });
     }
     let duplicate_cat;
-    if (product_category) { 
-        duplicate_cat = await Categorie.findOne({ category_name:product_category }).exec();
+    if (product_category) {
+        duplicate_cat = await Categorie.findOne({ category_name: product_category }).exec();
         if (!duplicate_cat) {
-            try { 
+            try {
                 duplicate_cat = await Categorie.create({
-                    category_name:product_category
-                }); 
+                    category_name: product_category
+                });
 
             } catch (err) {
                 console.log("error")
@@ -121,8 +139,15 @@ const updateProduit = async (req, res) => {
     produit.product_label = product_label;
     produit.product_description = product_description;
     produit.product_price = product_price;
-    produit.product_quantity =product_quantity;
-    produit.category_id = duplicate_cat; 
+    produit.product_quantity = product_quantity;
+    produit.category_id = duplicate_cat;
+    let result
+    try {
+        result = await produit.save()
+    } catch (error) {
+        return res.status(500).json({ 'message': error.message });
+    }
+    
     return res.json(result);
 }
 
@@ -148,6 +173,7 @@ const getProduit = async (req, res) => {
 }
 
 module.exports = {
+    getProduits,
     getAllProduits,
     getAllProduitsByUser,
     createNewProduit,

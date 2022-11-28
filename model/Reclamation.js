@@ -11,9 +11,9 @@ const reclamationSchema = new Schema({
 		required: true,
 		default : Date.now
 	},
-	enterprise: {
+	enterpriseClt: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: "Enterprise",
+		ref: "EntrepriseClient",
 		required: true
 	}, 
 });

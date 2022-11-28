@@ -27,7 +27,7 @@ const productSchema = new Schema({
 	},
     product_availability: {
 		type: String,
-		enum: ["En Stock", "Pré-commande", "Epuisé", "Disponibilité limitée", "En rupture de stock"],
+		enum: ["En Stock", "Pré-commande","En arrivage", "Epuisé", "Disponibilité limitée", "En rupture de stock"],
 		default: "En Stock"
 	},
 	quality_level: {
@@ -44,9 +44,10 @@ const productSchema = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Category"
 	},
-	enterprise: {
+	enterpriseImport: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "EntrepriseImport",
+		default: null
 		// required: true
 	},
 	subscribed_enterprises: [
