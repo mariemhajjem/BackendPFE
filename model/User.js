@@ -66,12 +66,12 @@ const userSchema = new Schema({
 		type: Boolean, 
 		default: false
 	},
-	enterpriseClt: {
+	entrepriseClt: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "EntrepriseClient",
 		default: null
 	}, 
-	enterpriseImport: {
+	entrepriseImport: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "EntrepriseImport",
 		default: null

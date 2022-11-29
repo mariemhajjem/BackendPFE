@@ -58,7 +58,7 @@ const login = async (req, res, next) => {
 	let user;
 	try {
 		console.log(req.body)
-		user = await User.findOne({ email }).populate(["enterpriseClt", "enterpriseImport"]).exec();
+		user = await User.findOne({ email }).populate(["entrepriseClt", "entrepriseImport"]).exec();
 	} catch (error) {
 		const err = new Error("Email fournis non valides, impossible de se connecter.");
 		err.code = 404;
@@ -165,9 +165,9 @@ const createNewUser = async (req, res) => {
 					password: hashedPwd,
 					role,
 					gender,
-					enterpriseImport: exist._id
+					entrepriseImport: exist._id
 				});
-				user.populate("enterpriseImport")
+				user.populate("entrepriseImport")
 
 			} catch (err) {
 				return res.status(500).json({ 'message': err.message });
@@ -208,9 +208,9 @@ const createNewUser = async (req, res) => {
 					password: hashedPwd,
 					role,
 					gender,
-					enterpriseClt: exist._id
+					entrepriseClt: exist._id
 				});
-				user.populate("enterpriseClt");
+				user.populate("entrepriseClt");
 			} catch (err) {
 				return res.status(500).json({ 'message': err.message });
 			}

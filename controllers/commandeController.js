@@ -2,7 +2,7 @@ const Commande = require('../model/Commande');
 const EntrepriseClient = require('../model/EntrepriseClient')
 
 const getAllCommandes = async (req, res) => {
-    const commandes = await Commande.find().populate("enterpriseClt");
+    const commandes = await Commande.find().populate("entrepriseClt");
     if (!commandes) return res.status(204).json(commandes);
     return res.json(commandes);
 }
@@ -22,6 +22,7 @@ const getAllCommandesByUser = async (req, res) => {
 const createNewCommande = async (req, res) => {
     const {
         commande_summary,
+        commande_address,
         id
     } = req?.body;
     console.log(req?.body)
@@ -40,7 +41,8 @@ const createNewCommande = async (req, res) => {
         //create and store 
         result = await Commande.create({
             commande_summary,
-            enterpriseClt: entrepriseClt[0]?._id,
+            commande_address,
+            entrepriseClt: entrepriseClt[0]?._id,
         });
         console.log(result)
 

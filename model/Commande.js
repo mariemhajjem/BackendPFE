@@ -15,6 +15,12 @@ const commandeSchema = new Schema({
 			},
 		}
 	],
+	commande_address: [
+		{
+			address: String,
+			code_postal: String
+		}
+	],
 	commande_date: {
 		type: Date,
 		required: true,
@@ -26,7 +32,7 @@ const commandeSchema = new Schema({
 		enum: ['En cours', "Confirmé", "Annulée"],
 		default: 'En cours'
 	},
-	enterpriseClt: {
+	entrepriseClt: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "EntrepriseClient",
 		required: true,

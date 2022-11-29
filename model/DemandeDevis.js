@@ -16,7 +16,7 @@ const demandeSchema = new Schema({
 		required: true,
 		default: Date.now
 	},  
-	enterprise: {
+	entreprise: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "EntrepriseClient",
 		required: true

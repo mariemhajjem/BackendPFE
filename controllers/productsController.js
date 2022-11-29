@@ -19,7 +19,7 @@ const getAllProduitsByUser = async (req, res) => {
     if (!req.body?.id) return res.status(400).json({ "message": `No produit matches your id.` });
     let produits
     try {
-        produits = await Produit.find({ enterpriseImport: req.body.id }).populate("category_id");
+        produits = await Produit.find({ entrepriseImport: req.body.id }).populate("category_id");
     } catch (error) {
         return res.status(500).json({ 'message': error.message });
     }
@@ -88,7 +88,7 @@ const createNewProduit = async (req, res) => {
             category_id: duplicate_cat,
             product_picture,
             product_quantity,
-            enterpriseImport: entrepriseImport[0]?._id
+            entrepriseImport: entrepriseImport[0]?._id
         });
         console.log(result)
 
