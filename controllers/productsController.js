@@ -2,6 +2,7 @@ const Resize = require('../middleware/Resize');
 const Produit = require('../model/Produit');
 const Categorie = require('../model/Categorie');
 const EntrepriseImport = require('../model/EntrepriseImport')
+const fs = require("fs");
 
 const getProduits = async (req, res) => {
     const produits = await Produit.find().populate("category_id");
@@ -39,7 +40,8 @@ const createNewProduit = async (req, res) => {
     /* const imagePath = path.join(__dirname, '/public/images');
     const fileUpload = new Resize(imagePath);
     const filename = await fileUpload.save(req.file.buffer); */
-    const imageUrl = "uploads/" + req.file?.filename; // TODO :change file path in upload.js 
+    const imageUrl = fs.readFileSync("uploads/" + req.file?.filename);
+    let product_picture = {data: imageUrl, contentType: req.file?.mimetype}
     /* if (!req.file) {
      const err = new Error(
            "Please provide an image"
@@ -84,7 +86,7 @@ const createNewProduit = async (req, res) => {
             product_description,
             product_price,
             category_id: duplicate_cat,
-            product_picture: imageUrl,
+            product_picture,
             product_quantity,
             enterpriseImport: entrepriseImport[0]?._id
         });

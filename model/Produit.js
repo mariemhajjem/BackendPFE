@@ -15,31 +15,32 @@ const productSchema = new Schema({
 		required: true
 	},
 	product_quantity: {
-		type: Number, 
+		type: Number,
 	},
 	product_picture: {
-		type: String,
+		data: Buffer,
+		contentType: String,
 	},
 	product_date: {
 		type: Date,
 		required: true,
 		default: Date.now()
 	},
-    product_availability: {
+	product_availability: {
 		type: String,
-		enum: ["En Stock", "Pré-commande","En arrivage", "Epuisé", "Disponibilité limitée", "En rupture de stock"],
+		enum: ["En Stock", "Pré-commande", "En arrivage", "Epuisé", "Disponibilité limitée", "En rupture de stock"],
 		default: "En Stock"
 	},
 	quality_level: {
 		type: String,
-		enum: ["Neuf avec emballage", "Neuf sans emballage","Retour client fonctionnel","Dommages dûs au transport"],
+		enum: ["Neuf avec emballage", "Neuf sans emballage", "Retour client fonctionnel", "Dommages dûs au transport"],
 		default: "Neuf avec emballage"
 	},
-    isShown: {
+	isShown: {
 		type: Boolean,
 		required: true,
 		default: true
-	}, 
+	},
 	category_id: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Category"
