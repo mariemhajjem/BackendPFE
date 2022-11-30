@@ -45,13 +45,13 @@ const productSchema = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Category"
 	},
-	enterpriseImport: {
+	entrepriseImport: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "EntrepriseImport",
 		default: null
 		// required: true
 	},
-	subscribed_enterprises: [
+	subscribed_entreprises: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "EntrepriseClient",

@@ -1,19 +1,29 @@
-const Commande = require('../model/Commande');
+const { Commande, CommandeFournisseur } = require('../model/Commande');
 const EntrepriseClient = require('../model/EntrepriseClient')
 
 const getAllCommandes = async (req, res) => {
-    const commandes = await Commande.find().populate("entrepriseClt");
+    const commandes = await Commande.find().populate(["entrepriseClt","commande_summary.produit"]);
     if (!commandes) return res.status(204).json(commandes);
     return res.json(commandes);
 }
 
 const getAllCommandesByUser = async (req, res) => {
-    if (!req.body?.entreprise) return res.status(400).json({ "message": `No commande matches your entreprise.` });
+    console.log(req.body)
+    if (!req.body)
+        return res.status(400).json({ "message": `No commande matches your entreprise.` });
     let commandes
-    try {
-        commandes = await Commande.find({ enterprise: req.body.enterprise });
-    } catch (error) {
-        return res.status(500).json({ 'message': error.message });
+    if (req.body?.idEntrepriseImport) {
+        try {
+            commandes = await CommandeFournisseur.find({ enterpriseImport: req.body.idEntrepriseImport }).populate(["entrepriseClt","commande_summary.produit"]);
+        } catch (error) {
+            return res.status(500).json({ 'message': error.message });
+        }
+    } else {
+        try {
+            commandes = await Commande.find({ entrepriseClt: req.body.idEntrepriseClt }).populate(["entrepriseClt","commande_summary.produit"]);
+        } catch (error) {
+            return res.status(500).json({ 'message': error.message });
+        }
     }
     if (!commandes) return res.status(204).json(commandes);
     return res.json(commandes);
@@ -35,6 +45,11 @@ const createNewCommande = async (req, res) => {
         console.log(err.message)
         return res.status(500).json({ 'message': err.message });
     }
+    let results = commande_summary.reduce(function (results, prod) {
+        (results[prod.idFournisseur] = results[prod.idFournisseur] || []).push(prod);
+        return results;
+    }, {})
+    console.log(results)
     let result;
 
     try {
@@ -51,6 +66,23 @@ const createNewCommande = async (req, res) => {
         return res.status(500).json({ 'message': err.message });
     }
 
+    Object.keys(results).forEach(async function (key, index) {
+        try {
+            //create and store 
+            await CommandeFournisseur.create({
+                commande_summary: results[key],
+                commande_address,
+                entrepriseClt: entrepriseClt[0]?._id,
+                enterpriseImport: key,
+            });
+
+        } catch (err) {
+            console.log(err.message)
+            return res.status(500).json({ 'message': err.message });
+        }
+    });
+
+
     return res.json(result);
 
 }
@@ -65,9 +97,33 @@ const getCommande = async (req, res) => {
     return res.json(commande);
 }
 
+const updateCommande = async (req, res) => {
+    if (!req?.body?.id) return res.status(400).json({ 'message': 'Commande ID required.' });
+    let commande;
+    try {
+        commande = await Commande.findOne({ _id: req.body.id }).populate(["entrepriseClt","commande_summary.produit"]).exec();
+    } catch (error) {
+        return res.status(500).json({ 'message': error.message });
+    }
+
+    if (!commande) {
+        return res.status(204).json({ "message": `No commande matches ID ${req.body.id}.` });
+    }
+    commande.commande_status = req.body.commande_status
+    let result
+    try {
+        result = await commande.save()
+    } catch (error) {
+        return res.status(500).json({ 'message': error.message });
+    }
+    
+    return res.json(result);
+}
+
 module.exports = {
     getAllCommandes,
     getAllCommandesByUser,
     createNewCommande,
-    getCommande
+    getCommande,
+    updateCommande
 }

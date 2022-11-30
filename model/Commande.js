@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const options = { discriminatorKey: 'type' };
 
 const commandeSchema = new Schema({
 	commande_summary: [
@@ -29,7 +30,7 @@ const commandeSchema = new Schema({
 	commande_status: {
 		type: String,
 		required: true,
-		enum: ['En cours', "Confirmé", "Annulée"],
+		enum: ['En cours', "Confirmé", "Annulée", "Refusée"],
 		default: 'En cours'
 	},
 	entrepriseClt: {
@@ -38,6 +39,22 @@ const commandeSchema = new Schema({
 		required: true,
 		default: null
 	}
-});
+}, options);
 
-module.exports = mongoose.model('Commande', commandeSchema);
+const Commande = mongoose.model('Commande', commandeSchema);
+
+const CommandeFournisseur = Commande.discriminator('CommandeFournisseur',
+	new mongoose.Schema({
+		date_livraison: Date, 
+		enterpriseImport: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "EntrepriseImport",
+			default: null,
+			required: true
+		},
+	}, options));
+
+module.exports = {
+	Commande,
+	CommandeFournisseur
+}
