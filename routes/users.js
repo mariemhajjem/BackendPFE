@@ -8,6 +8,7 @@ router.route('/')
     .get(usersController.getAllUsers) 
     .put(verifyRoles(ROLES_LIST.ADMIN), usersController.updateUser)
     .delete(verifyRoles(ROLES_LIST.ADMIN), usersController.deleteUser);
+router.route('/byfournisseur/:id').get(usersController.getClientsByFournisseur)
 router.route('/:id').put(usersController.getUser);
 router.route('/block/:id').put(usersController.blockUser);
 router.route('/:id').get(usersController.getUser);

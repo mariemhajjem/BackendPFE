@@ -108,16 +108,17 @@ const updateProduit = async (req, res) => {
         product_quantity,
         product_category
     } = req?.body;
+    
     if (!req?.body?.id) {
         return res.status(400).json({ 'message': 'ID parameter is required.' });
     }
     let produit;
     try {
-        produit = await Produit.findOne({ _id: req.body.id }).exec();
+        produit = await Produit.findOne({ _id: req.body.idProduit }).exec();
     } catch (error) {
         return res.status(500).json({ 'message': error.message });
     }
-
+    console.log("req", produit)
     if (!produit) {
         return res.status(204).json({ "message": `No produit matches ID ${req.body.id}.` });
     }
@@ -143,13 +144,14 @@ const updateProduit = async (req, res) => {
     produit.product_price = product_price;
     produit.product_quantity = product_quantity;
     produit.category_id = duplicate_cat;
+    
     let result
     try {
         result = await produit.save()
     } catch (error) {
         return res.status(500).json({ 'message': error.message });
     }
-    
+    console.log("res: ",result)
     return res.json(result);
 }
 

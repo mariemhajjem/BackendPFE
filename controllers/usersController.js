@@ -1,13 +1,33 @@
-const User = require('../model/User');  
+const { CommandeFournisseur } = require('../model/Commande');
+const EntrepriseClient = require('../model/EntrepriseClient')
+const User = require('../model/User');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const getAllUsers = async (req, res) => {
   const users = await User.find()//.populate("enterprise"); 
   if (!users) return res.status(204).json({ 'message': 'No users found.' });
-  res.json(users);
+  return res.json(users);
 }
 
+const getClientsByFournisseur = async (req, res) => {
+  if (!req.params.id) return res.status(400).json({ "message": `No id entreprise provided.` });
+  let users
+  try {
+    users = await CommandeFournisseur.find({ enterpriseImport: req.params.id },{"entrepriseClt": 1, _id: 0}).populate("entrepriseClt");
+  } catch (error) {
+    return res.status(500).json({ 'message': error.message });
+  }
+  let set = new Set();
+  users.map((user) => {
+    set.add(JSON.stringify(user))
+  })
+  const formattedSet = [...set].map(item => {
+    if (typeof item === 'string') return JSON.parse(item);
+    else if (typeof item === 'object') return item;
+  }); 
+  return res.json(formattedSet);
+}
 
 const login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -183,23 +203,24 @@ const getUser = async (req, res) => {
     return res.status(204).json({ "message": `No user matches ID ${req.params.id}.` });
   }
   res.json(user);
-} 
+}
 
 const blockUser = async (req, res) => {
   if (!req.params?.id) {
     return res.status(400).json({ 'message': 'ID parameter is required.' });
   }
 
-  const user = await User.findOne({ _id: req.params.id }).exec();
+  const user = await EntrepriseClient.findOne({ _id: req.params.id }).exec();
   if (!user) {
     return res.status(204).json({ "message": `No user matches ID ${req.params?.id}.` });
   }
-  user.isBlocked = !user.isBlocked ;
+  user.isBlocked = !user.isBlocked;
   const result = await user.save();
   res.json(result);
 }
 module.exports = {
   getAllUsers,
+  getClientsByFournisseur,
   createNewUser,
   updateUser,
   deleteUser,

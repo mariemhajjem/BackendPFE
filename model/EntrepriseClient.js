@@ -32,6 +32,10 @@ const EntrepriseClt = new Schema({
     required :true,
     default : false
   },
+  isBlocked: {
+		type: Boolean, 
+		default: false
+	},
   demandes: [
     {
       type: mongoose.Schema.Types.ObjectId,
