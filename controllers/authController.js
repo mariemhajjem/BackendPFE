@@ -4,7 +4,7 @@ const nodemailer = require("nodemailer");
 const hbs = require('nodemailer-express-handlebars')
 const path = require('path');
 const User = require("../model/User");
-const creds = require("../config/contact"); 
+const creds = require("../config/contact");
 const EntrepriseClient = require('../model/EntrepriseClient');
 const EntrepriseImport = require('../model/EntrepriseImport');
 
@@ -65,7 +65,7 @@ const login = async (req, res, next) => {
 		return next(err);
 	}
 
-	if (!user) { 
+	if (!user) {
 		return res.status(404).json({ 'message': 'user not found' });
 	}
 	let passwordIsValid = bcrypt.compareSync(password, user.password);
@@ -76,8 +76,8 @@ const login = async (req, res, next) => {
 		);
 		err.code = 401;
 		return next(err);
-	} 
- 
+	}
+
 	let token;
 	try {
 		token = jwt.sign(
@@ -236,6 +236,79 @@ const createNewUser = async (req, res) => {
 
 }
 
+const updateProfile = async (req, res) => {
+	if (!req?.body?.id) {
+		return res.status(400).json({ 'message': 'ID parameter is required.' });
+	}
+
+	const result = await User.findOne({ _id: req.body.id }).populate(["entrepriseClt", "entrepriseImport"]).exec();
+	if (!result) {
+		return res.status(204).json({ "message": `No user matches ID: ${req.body.id}.` });
+	} 
+	if (req.body?.firstName) result.firstName = req.body.firstName;
+	if (req.body?.lastName) result.lastName = req.body.lastName;
+	if (req.body?.email) result.email = req.body.email;
+	if (req.body?.phoneNumber) result.phoneNumber = req.body.phoneNumber;
+	if (req.body?.address) result.address = req.body.address;
+	if (req.body?.user_grade) result.user_grade = req.body.user_grade;
+	if (req.body?.residence) result.residence = req.body.residence;
+	const user = await result.save();
+	let token;
+	try {
+		token = jwt.sign(
+			{ user },
+			process.env.ACCESS_TOKEN_SECRET,
+			{ expiresIn: "1d" }
+		);
+	} catch (err) {
+		const error = new Error("logging user failed. Please try again!");
+		error.code = 500;
+		console.log(err);
+		return res.status(500).json({ 'message': err.message });
+	}
+	return res.json(token);
+}
+
+const resetPassword = async (req, res) => {
+	if (!req?.body?.email) {
+		return res.status(400).json({ 'message': 'email is required.' });
+	}
+
+	const user = await User.findOne({ email: req.body.email }).populate(["entrepriseClt", "entrepriseImport"]).exec();
+	if (!user) {
+		return res.status(204).json({ "message": `No user matches ID ${req.body.email}.` });
+	}
+	//generate random password and send it by email
+	const randomPwd = Math.random().toString(36).slice(-8);
+	const hashedPwd = await bcrypt.hash(randomPwd, 10);
+	if (hashedPwd) user.password = hashedPwd;
+
+	const result = await user.save();
+
+
+	let mailOptions = {
+		from: '"Mariem" <mariemhajjem10@gmail.com>', // sender address
+		to: req.body.email, // list of receivers
+		subject: 'Votre nouveau mot de passe sur smtradingOptimum.com!',
+		template: 'email', // the name of the template file i.e email.handlebars
+		context: {
+			name: result.firstName, // replace {{name}}
+			mdp: randomPwd // replace {{mdp}}
+		},
+		//In the root of your project, create a folder called attachments
+		// attachments: [{ filename: "pic-1.pdf", path: "./attachments/pic-1.jpeg" }],
+	};
+	// trigger the sending of the E-mail
+	transporter.sendMail(mailOptions, function (error, info) {
+		if (error) {
+			return console.log(error);
+		}
+		console.log('Message sent: ' + info.response);
+	}); 
+	return res.status(200).json({ "message": `mot de passe envoyée à ${req.body.email}.` });
+}
 
 exports.login = login;
 exports.createNewUser = createNewUser;
+exports.updateProfile = updateProfile;
+exports.resetPassword = resetPassword;

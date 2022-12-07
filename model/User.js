@@ -23,7 +23,7 @@ const userSchema = new Schema({
 		type: String
 	},
 	residence: {
-		type: Array
+		type: String
 	},
 	password: {
 		type: String

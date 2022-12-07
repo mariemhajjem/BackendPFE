@@ -5,12 +5,12 @@ const EntrepriseImport = require('../model/EntrepriseImport')
 const fs = require("fs");
 
 const getProduits = async (req, res) => {
-    const produits = await Produit.find().populate("category_id");
+    const produits = await Produit.find().populate(["category_id","entrepriseImport"]);
     if (!produits) return res.status(204).json(produits);
     return res.json(produits);
 }
 const getAllProduits = async (req, res) => {
-    const produits = await Produit.find({ isShown: true }).populate("category_id");
+    const produits = await Produit.find({ isShown: true }).populate(["category_id","entrepriseImport"]);
     if (!produits) return res.status(204).json(produits);
     return res.json(produits);
 }
@@ -19,7 +19,7 @@ const getAllProduitsByUser = async (req, res) => {
     if (!req.body?.id) return res.status(400).json({ "message": `No produit matches your id.` });
     let produits
     try {
-        produits = await Produit.find({ entrepriseImport: req.body.id }).populate("category_id");
+        produits = await Produit.find({ entrepriseImport: req.body.id }).populate(["category_id","entrepriseImport"]);
     } catch (error) {
         return res.status(500).json({ 'message': error.message });
     }
@@ -169,7 +169,7 @@ const deleteProduit = async (req, res) => {
 const getProduit = async (req, res) => {
     if (!req?.params?.id) return res.status(400).json({ 'message': 'Produit ID required.' });
 
-    const produit = await Produit.findOne({ _id: req.params.id }).exec();
+    const produit = await Produit.findOne({ _id: req.params.id }).populate(["category_id","entrepriseImport"]);
     if (!produit) {
         return res.status(204).json({ "message": `No produit matches ID ${req.params.id}.` });
     }

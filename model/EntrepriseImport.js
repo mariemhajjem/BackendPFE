@@ -12,7 +12,7 @@ const EntrepriseImpt = new Schema({
     required: true
   },
   company_residence: {
-    type: Array,
+    type: String,
     required: true
   },
   company_address: {
@@ -31,13 +31,7 @@ const EntrepriseImpt = new Schema({
     type: Boolean,
     required :true,
     default : false
-  },
-  stock: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Produit",
-    }
-  ],  
+  },  
 });
  
 module.exports = mongoose.model( "EntrepriseImport", EntrepriseImpt);

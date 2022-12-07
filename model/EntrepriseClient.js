@@ -12,7 +12,7 @@ const EntrepriseClt = new Schema({
     required: true
   },
   company_residence: {
-    type: Array,
+    type: String,
     required: true
   },
   company_address: {
@@ -36,18 +36,6 @@ const EntrepriseClt = new Schema({
 		type: Boolean, 
 		default: false
 	},
-  demandes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Demande",
-    }
-  ],
-  commandes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Commande",
-    }
-  ]
 });
  
 module.exports = mongoose.model("EntrepriseClient", EntrepriseClt);
