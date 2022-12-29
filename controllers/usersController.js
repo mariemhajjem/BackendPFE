@@ -1,5 +1,6 @@
 const { CommandeFournisseur } = require('../model/Commande');
 const EntrepriseClient = require('../model/EntrepriseClient')
+const EntrepriseImport = require('../model/EntrepriseImport')
 const User = require('../model/User');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -8,6 +9,13 @@ const getAllUsers = async (req, res) => {
   const users = await User.find()//.populate("enterprise"); 
   if (!users) return res.status(204).json({ 'message': 'No users found.' });
   return res.json(users);
+}
+
+const getEntreprise = async (req, res) => {
+  if (!req.params.id) return res.status(400).json({ "message": `No id entreprise provided.` });
+  const entreprise = await EntrepriseImport.find({_id: req.params.id})
+  if (!entreprise) return res.status(204).json({ 'message': 'No entreprise found.' });
+  return res.json(entreprise);
 }
 
 const getClientsByFournisseur = async (req, res) => {
@@ -220,6 +228,7 @@ const blockUser = async (req, res) => {
 }
 module.exports = {
   getAllUsers,
+  getEntreprise,
   getClientsByFournisseur,
   createNewUser,
   updateUser,

@@ -9,7 +9,7 @@ router.route('/').get(categoryController.getAllCategories) ;
 router.post('/add',categoryController.createNewCategorie)
 router.route('/update').put(categoryController.updateCategorie);
 router.route('/:id')
-    .delete(verifyRoles(ROLES_LIST.ADMIN), categoryController.deleteCategorie)
+    .delete(categoryController.deleteCategorie)
     .get(categoryController.getCategorie);
 
 module.exports = router;

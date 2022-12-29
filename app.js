@@ -43,6 +43,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/produits', require('./routes/produits'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/commandes', require('./routes/commandes'));
+app.use('/api/demandes', require('./routes/demandes'));
 // app.use(verifyJWT);
 app.use('/api/users', require('./routes/users'));
 

@@ -14,6 +14,10 @@ const commandeSchema = new Schema({
 				type: Number,
 				required: true
 			},
+			price: {
+				type: Number,
+				required: true
+			},
 			statut: {
 				type: Boolean,
 				default: false
