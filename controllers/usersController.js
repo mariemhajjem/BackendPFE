@@ -6,14 +6,15 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const getAllUsers = async (req, res) => {
-  const users = await User.find()//.populate("enterprise"); 
+  const clients = await User.find({ entrepriseImport: null }).populate("entrepriseClt");
+  const users = await User.find({ entrepriseClt: null }).populate("entrepriseImport");
   if (!users) return res.status(204).json({ 'message': 'No users found.' });
-  return res.json(users);
+  return res.json([...users, ...clients]);
 }
 
 const getEntreprise = async (req, res) => {
   if (!req.params.id) return res.status(400).json({ "message": `No id entreprise provided.` });
-  const entreprise = await EntrepriseImport.find({_id: req.params.id})
+  const entreprise = await EntrepriseImport.find({ _id: req.params.id })
   if (!entreprise) return res.status(204).json({ 'message': 'No entreprise found.' });
   return res.json(entreprise);
 }
@@ -22,7 +23,7 @@ const getClientsByFournisseur = async (req, res) => {
   if (!req.params.id) return res.status(400).json({ "message": `No id entreprise provided.` });
   let users
   try {
-    users = await CommandeFournisseur.find({ enterpriseImport: req.params.id },{"entrepriseClt": 1, _id: 0}).populate("entrepriseClt");
+    users = await CommandeFournisseur.find({ enterpriseImport: req.params.id }, { "entrepriseClt": 1, _id: 0 }).populate("entrepriseClt");
   } catch (error) {
     return res.status(500).json({ 'message': error.message });
   }
@@ -33,7 +34,7 @@ const getClientsByFournisseur = async (req, res) => {
   const formattedSet = [...set].map(item => {
     if (typeof item === 'string') return JSON.parse(item);
     else if (typeof item === 'object') return item;
-  }); 
+  });
   return res.json(formattedSet);
 }
 
@@ -214,17 +215,50 @@ const getUser = async (req, res) => {
 }
 
 const blockUser = async (req, res) => {
-  if (!req.params?.id) {
+  const { role, id } = req?.body
+  if (!req.body?.id) {
     return res.status(400).json({ 'message': 'ID parameter is required.' });
   }
 
-  const user = await EntrepriseClient.findOne({ _id: req.params.id }).exec();
+  /* const user = await EntrepriseClient.findOne({ _id: id }).exec();
   if (!user) {
     return res.status(204).json({ "message": `No user matches ID ${req.params?.id}.` });
+  } */
+
+  let exist
+  switch (role) {
+    case "FOURNISSEUR":
+
+      try {
+        exist = await EntrepriseImport.findOne({ _id: id }).exec();
+      } catch (error) {
+        return res.status(500).json({ 'message': error.message });
+      }
+
+      if (!exist) {
+        return res.status(204).json({ "message": `No user matches ID ${req.body?.id}.` });
+      }
+
+      break;
+    case "CLIENT":
+      try {
+        exist = await EntrepriseClient.findOne({ _id: id }).exec();
+      } catch (error) {
+        return res.status(500).json({ 'message': error.message });
+      }
+
+      if (!exist) {
+        return res.status(204).json({ "message": `No user matches ID ${req.body?.id}.` });
+      };
+
+      break;
   }
-  user.isBlocked = !user.isBlocked;
-  const result = await user.save();
-  res.json(result);
+
+  exist.isBlocked = !exist.isBlocked;
+  const result = await exist.save();
+  // user.isBlocked = !user.isBlocked;
+  // const result = await user.save();
+  return res.json(result);
 }
 module.exports = {
   getAllUsers,

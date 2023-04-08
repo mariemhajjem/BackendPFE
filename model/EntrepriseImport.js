@@ -31,7 +31,17 @@ const EntrepriseImpt = new Schema({
     type: Boolean,
     required :true,
     default : false
-  },  
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false
+  },
+  employees: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    }
+  ],
 });
  
 module.exports = mongoose.model( "EntrepriseImport", EntrepriseImpt);

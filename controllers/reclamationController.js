@@ -3,30 +3,30 @@ const Reclamation = require('../model/Reclamation');
 const getAllReclamations = async (req, res) => {
     const reclamations = await Reclamation.find();
     if (!reclamations) return res.status(204).json({ 'message': 'No reclamations found.' });
-    res.json(reclamations);
+    return res.json(reclamations);
 }
 
 
 const createReclamation = async (req, res) => {
-    const { reclamationText, dateSentReport } = req?.body;
-    if (!category_name) {
-        return res.status(400).json({ 'message': 'category name is required' });
+    const { reclamationText, email } = req?.body;
+    if (!email) {
+        return res.status(400).json({ 'message': 'email is required' });
     }
-     
+    
     let result;
 
     try {
         //create and store 
         result = await Reclamation.create({
-            reclamationText, dateSentReport
+            reclamationText, email
         });
         console.log(result);
 
     } catch (err) {
-        res.status(500).json({ 'message': err.message });
+        return res.status(500).json({ 'message': err.message });
     }
 
-    res.json(result);
+    return res.json(result);
 
 } 
 
@@ -38,7 +38,7 @@ const deleteReclamation = async (req, res) => {
         return res.status(204).json({ "message": `No reclamation matches ID ${req.body.id}.` });
     }
     const result = await reclamation.deleteOne(); //{ _id: req.body.id }
-    res.json(result);
+    return res.json(result);
 }
 
 const getReclamation = async (req, res) => {
@@ -48,7 +48,7 @@ const getReclamation = async (req, res) => {
     if (!reclamation) {
         return res.status(204).json({ "message": `No reclamation matches ID ${req.params.id}.` });
     }
-    res.json(reclamation);
+    return res.json(reclamation);
 }
 
 module.exports = {

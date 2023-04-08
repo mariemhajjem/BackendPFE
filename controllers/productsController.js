@@ -1,6 +1,6 @@
 const Resize = require('../middleware/Resize');
 const Produit = require('../model/Produit');
-const Categorie = require('../model/Categorie');
+const { Categorie } = require('../model/Categorie');
 const EntrepriseImport = require('../model/EntrepriseImport')
 const fs = require("fs");
 
@@ -43,6 +43,7 @@ const createNewProduit = async (req, res) => {
         product_category,
         product_quantity,
         isShown,
+        product_availability,
         id
     } = req?.body;
     console.log(req?.body)
@@ -98,6 +99,8 @@ const createNewProduit = async (req, res) => {
             product_picture,
             product_quantity,
             isShown,
+            product_availability,
+            barcode: req.body?.barcode,
             product_brand: req.body?.product_brand,
             entrepriseImport: entrepriseImport[0]?._id
         });
@@ -118,6 +121,7 @@ const updateProduit = async (req, res) => {
         product_price,
         product_quantity,
         product_category,
+        product_availability,
         isShown
     } = req?.body;
     
@@ -130,7 +134,7 @@ const updateProduit = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ 'message': error.message });
     }
-    console.log("req", produit)
+    
     if (!produit) {
         return res.status(204).json({ "message": `No produit matches ID ${req.body.id}.` });
     }
@@ -155,8 +159,10 @@ const updateProduit = async (req, res) => {
     produit.product_description = product_description;
     produit.product_price = product_price;
     produit.product_quantity = product_quantity;
+    produit.product_availability = product_availability;
     produit.isShown = isShown;
     produit.product_brand = req.body?.product_brand;
+    produit.barcode = req.body?.barcode;
     produit.category_id = duplicate_cat;
     
     let result
@@ -165,7 +171,7 @@ const updateProduit = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ 'message': error.message });
     }
-    console.log("res: ",result)
+
     return res.json(result);
 }
 

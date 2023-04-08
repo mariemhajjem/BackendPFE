@@ -11,7 +11,7 @@ router.route('/')
 router.route('/byfournisseur/:id').get(usersController.getClientsByFournisseur);
 router.route('/entreprise/:id').get(usersController.getEntreprise);
 router.route('/:id').put(usersController.getUser);
-router.route('/block/:id').put(usersController.blockUser);
+router.route('/block').put(usersController.blockUser);
 router.route('/:id').get(usersController.getUser);
 
 module.exports = router;

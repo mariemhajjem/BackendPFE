@@ -14,15 +14,8 @@ ac.grant("admin")
 // .deleteAny("")
 // .readAny("")
  
-ac.grant("enrolled")
+ac.grant("client")
  .extend("admin")
- 
- 
-ac.grant("operator")
-
-
-ac.grant("volunteer")
-.extend("enrolled")
 
  
 return ac ;

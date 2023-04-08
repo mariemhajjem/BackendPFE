@@ -1,11 +1,11 @@
-const mongoose = require("mongoose"); 
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const EntrepriseClt = new Schema({
   matricule_fiscale: {
     type: String,
     required: true,
-    unique : true
+    unique: true
   },
   company_name: {
     type: String,
@@ -21,21 +21,27 @@ const EntrepriseClt = new Schema({
   company_phoneNumber: {
     type: String,
     required: true,
-    unique : true
-  }, 
+    unique: true
+  },
   company_email: {
-    type: String, 
-    
-  },  
+    type: String,
+
+  },
   isVerified: {
     type: Boolean,
-    required :true,
-    default : false
+    required: true,
+    default: false
   },
   isBlocked: {
-		type: Boolean, 
-		default: false
-	},
+    type: Boolean,
+    default: false
+  },
+  employees: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }
+  ],
 });
- 
+
 module.exports = mongoose.model("EntrepriseClient", EntrepriseClt);

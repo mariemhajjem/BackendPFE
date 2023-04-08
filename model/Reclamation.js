@@ -11,11 +11,7 @@ const reclamationSchema = new Schema({
 		required: true,
 		default : Date.now
 	},
-	enterpriseClt: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: "EntrepriseClient",
-		required: true
-	}, 
+	email: String,  
 });
 
 module.exports = mongoose.model('Reclamation', reclamationSchema);

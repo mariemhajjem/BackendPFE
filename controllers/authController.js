@@ -168,6 +168,8 @@ const createNewUser = async (req, res) => {
 					entrepriseImport: exist._id
 				});
 				user.populate("entrepriseImport")
+				exist.employees.push(user._id)
+				await exist.save()
 
 			} catch (err) {
 				return res.status(500).json({ 'message': err.message });
@@ -211,6 +213,8 @@ const createNewUser = async (req, res) => {
 					entrepriseClt: exist._id
 				});
 				user.populate("entrepriseClt");
+				exist.employees.push(user._id)
+				await exist.save()
 			} catch (err) {
 				return res.status(500).json({ 'message': err.message });
 			}

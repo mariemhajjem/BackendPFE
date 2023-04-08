@@ -10,6 +10,12 @@ const productSchema = new Schema({
 		type: String,
 		required: true
 	},
+	product_brand: {
+		type: String,
+	},
+	barcode: {
+		type: Number,
+	},
 	product_price: {
 		type: Number,
 		required: true
