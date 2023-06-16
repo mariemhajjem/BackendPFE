@@ -111,7 +111,7 @@ const createNewUser = async (req, res) => {
 		company_phoneNumber,
 		company_email,
 		company_residence } = req?.body;
-
+		console.log(company_residence)
 	if (!firstName || !lastName) { //TODO : add rest of required body params
 		return res.status(400).json({ 'message': 'First and last names are required' });
 	}
@@ -291,7 +291,7 @@ const resetPassword = async (req, res) => {
 
 
 	let mailOptions = {
-		from: '"Mariem" <mariemhajjem10@gmail.com>', // sender address
+		from: '"SMtradingoptimum" <setmtradingoptimum@gmail.com>', // sender address
 		to: req.body.email, // list of receivers
 		subject: 'Votre nouveau mot de passe sur smtradingOptimum.com!',
 		template: 'email', // the name of the template file i.e email.handlebars

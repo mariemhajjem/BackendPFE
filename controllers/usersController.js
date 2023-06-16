@@ -206,12 +206,12 @@ const deleteUser = async (req, res) => {
 
 const getUser = async (req, res) => {
   if (!req?.params?.id) return res.status(400).json({ 'message': 'User ID required.' });
-
+  console.log(req?.params?.id)
   const user = await User.findOne({ _id: req.params.id }).populate("enterprise").exec();
   if (!user) {
     return res.status(204).json({ "message": `No user matches ID ${req.params.id}.` });
   }
-  res.json(user);
+  return res.json(user);
 }
 
 const blockUser = async (req, res) => {
@@ -219,6 +219,7 @@ const blockUser = async (req, res) => {
   if (!req.body?.id) {
     return res.status(400).json({ 'message': 'ID parameter is required.' });
   }
+  console.log("iciiii",req.body)
 
   /* const user = await EntrepriseClient.findOne({ _id: id }).exec();
   if (!user) {

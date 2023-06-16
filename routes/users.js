@@ -10,7 +10,7 @@ router.route('/')
     .delete(verifyRoles(ROLES_LIST.ADMIN), usersController.deleteUser);
 router.route('/byfournisseur/:id').get(usersController.getClientsByFournisseur);
 router.route('/entreprise/:id').get(usersController.getEntreprise);
-router.route('/:id').put(usersController.getUser);
+router.route('/put/:id').put(usersController.getUser);
 router.route('/block').put(usersController.blockUser);
 router.route('/:id').get(usersController.getUser);
 
